@@ -36,7 +36,7 @@ PROVIDER_OPENROUTER = "openrouter"
 
 # --- Blue Team (LOCKED) ---
 BLUE_PROVIDER = PROVIDER_OPENROUTER
-BLUE_MODEL = "liquid/lfm-2.5-2.6b"
+BLUE_MODEL = "liquid/lfm-2.5-2.6b:free"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 DEFAULT_OPENROUTER_MODEL = BLUE_MODEL  # alias
 
@@ -262,6 +262,30 @@ def setup_api_key():
             f"Model khó ({model}) — tuỳ chọn; không đổi tên agent. "
             f"(Gợi ý: {HARD_OPENAI_MODEL} / {HARD_GEMINI_MODEL})"
         )
+
+
+# ---------------------------------------------------------------------------
+# Blue — optional ML guard layers (off by default; need requirements-ml.txt)
+# ---------------------------------------------------------------------------
+
+def _env_flag(name: str, default: bool = False) -> bool:
+    return os.environ.get(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
+
+
+# Option 2 — local prompt-injection classifier (Hugging Face transformers)
+BLUE_USE_PROMPT_GUARD = _env_flag("BLUE_USE_PROMPT_GUARD")
+PROMPT_GUARD_MODEL = os.environ.get(
+    "PROMPT_GUARD_MODEL", "protectai/deberta-v3-base-prompt-injection-v2"
+).strip()
+PROMPT_GUARD_THRESHOLD = float(os.environ.get("PROMPT_GUARD_THRESHOLD", "0.9"))
+
+# Option 3 — embedding similarity to known attacks (sentence-transformers)
+BLUE_USE_EMBEDDING_GUARD = _env_flag("BLUE_USE_EMBEDDING_GUARD")
+EMBEDDING_GUARD_MODEL = os.environ.get(
+    "EMBEDDING_GUARD_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+).strip()
+EMBEDDING_GUARD_THRESHOLD = float(os.environ.get("EMBEDDING_GUARD_THRESHOLD", "0.80"))
+EMBEDDING_GUARD_MARGIN = float(os.environ.get("EMBEDDING_GUARD_MARGIN", "0.10"))
 
 
 ALLOWED_TOPICS = [

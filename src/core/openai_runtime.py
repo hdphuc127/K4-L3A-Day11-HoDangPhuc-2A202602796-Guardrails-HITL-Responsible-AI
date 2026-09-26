@@ -51,7 +51,7 @@ class OpenAIRunner:
 
         return OpenAI(**(self.client_kwargs or {}))
 
-    async def chat(self, agent: OpenAIAgent, user_message: str) -> str:
+    async def chat(self, agent: OpenAIAgent, user_message: str, history: list[dict] | None = None) -> str:
         for hook in self.input_hooks:
             blocked = hook(user_message)
             if blocked:
@@ -66,6 +66,7 @@ class OpenAIRunner:
             model=self.model,
             messages=[
                 {"role": "system", "content": agent.instruction},
+                *(history or []),
                 {"role": "user", "content": user_message},
             ],
             temperature=self.temperature,

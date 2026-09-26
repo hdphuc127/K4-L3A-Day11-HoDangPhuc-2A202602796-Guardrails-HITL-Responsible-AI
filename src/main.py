@@ -64,7 +64,8 @@ async def part3_assignment_suite():
     )
 
     try:
-        plugins = build_production_plugins(use_llm_judge=False)
+        # Judge always on; ML input guards follow BLUE_USE_* flags in .env
+        plugins = build_production_plugins(use_llm_judge=True)
         audit, monitor = build_observability()
         pipeline = {"plugins": plugins, "audit": audit, "monitor": monitor}
         result = await run_assignment_suite(pipeline)
