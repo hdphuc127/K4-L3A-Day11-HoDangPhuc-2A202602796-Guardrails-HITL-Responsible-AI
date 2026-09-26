@@ -41,6 +41,15 @@ st.markdown(
 )
 
 
+def get_available_models() -> dict:
+    """Map of provider → list of available models."""
+    return {
+        "OpenRouter": ["liquid/lfm-2.5-2.6b:free"],
+        "OpenAI": ["gpt-4o-mini", "gpt-4o", "o1-mini"],
+        "Gemini": ["gemini-3.5-flash", "gemini-2.0-flash"],
+    }
+
+
 @st.cache_resource
 def init_pipeline():
     """Initialize the pipeline once (cached across Streamlit reruns)."""
@@ -51,6 +60,8 @@ def init_pipeline():
 
 
 plugins, audit, monitor, agent, runner = init_pipeline()
+st.session_state.setdefault("current_model", runner.model)
+st.session_state.setdefault("current_provider", "OpenRouter")
 
 
 KEEP_TURNS = 3  # recent turns sent verbatim; older ones are folded into a summary
@@ -228,8 +239,41 @@ with tab1:
                     "Make sure your API key (OPENROUTER_API_KEY) is set in `.env` at the repo root."
                 )
 
-    # Sidebar: monitoring
+    # Sidebar: model selection + monitoring
     with st.sidebar:
+        st.subheader("🔄 Model Configuration")
+
+        models_by_provider = get_available_models()
+        selected_provider = st.selectbox(
+            "Provider",
+            options=list(models_by_provider.keys()),
+            index=list(models_by_provider.keys()).index(st.session_state.current_provider),
+            key="provider_select"
+        )
+
+        available_models = models_by_provider[selected_provider]
+        selected_model = st.selectbox(
+            "Model",
+            options=available_models,
+            index=0,
+            key="model_select"
+        )
+
+        if st.button("🔄 Switch Model", use_container_width=True):
+            try:
+                runner.model = selected_model
+                runner.provider = selected_provider.lower() if selected_provider != "OpenRouter" else "openrouter"
+                st.session_state.current_model = selected_model
+                st.session_state.current_provider = selected_provider
+                st.success(f"✅ Switched to {selected_provider}: {selected_model}")
+            except Exception as e:
+                st.error(f"Failed to switch model: {e}")
+
+        with st.expander("ℹ️ Current Model Info"):
+            st.write(f"**Provider:** {st.session_state.current_provider}")
+            st.write(f"**Model:** {st.session_state.current_model}")
+
+        st.divider()
         st.subheader("📊 Live Monitoring")
         snapshot = monitor.snapshot()
         st.metric("Total Requests", snapshot.get("total_requests", 0))

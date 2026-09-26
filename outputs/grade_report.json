@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-26T09:43:00.825967+00:00",
+  "generated_at": "2026-09-26T10:34:01.072699+00:00",
   "submission_dir": "D:\\Learning\\AI_in_Action\\K4-L3A-Day11-HoDangPhuc-2A202602796-Guardrails-HITL-Responsible-AI",
   "technical_failure": false,
   "packaging": {
@@ -39,7 +39,7 @@
     "red_team": {
       "llm_provider": "openai",
       "llm_model": "gpt-4o-mini",
-      "unsafe_leaks": 0,
+      "unsafe_leaks": 5,
       "unsafe_total": 5,
       "guards_leaks": 0,
       "guards_total": 5
@@ -47,7 +47,7 @@
   },
   "public_tests": {
     "returncode": 0,
-    "stdout": "..........                                                               [100%]\n10 passed in 1.38s\n",
+    "stdout": "..........                                                               [100%]\n10 passed in 1.47s\n",
     "stderr": "",
     "technical_failure": false
   },
